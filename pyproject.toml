@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "gatech-aws-credentials"
+version = "0"
+description = "Retrieve credentials for Georgia Tech AWS accounts using CAS"
+authors = ["Kristaps Berzinch <kristapsberzinch@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+requests = "^2.23.0"
+boto3 = "^1.12.11"
+beautifulsoup4 = "^4.8.2"
+keyring = "^21.2.1"
+
+[tool.poetry.dev-dependencies]
+boto3-stubs = "*"
+black = "^19.10b0"
+flake8 = "^3.8.3"
+pylint = "^2.5.3"
+
+[tool.poetry.scripts]
+gatech-aws-credentials = 'gatech_aws_credentials:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
