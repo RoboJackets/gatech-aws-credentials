@@ -5,7 +5,10 @@ Retrieve credentials for Georgia Tech AWS accounts using CAS
 The recommended install method is using `pipx`.
 
 ```shell
-$ pipx install git+https://github.com/RoboJackets/gatech-aws-credentials
+pipx install git+https://github.com/RoboJackets/gatech-aws-credentials
+
+# Updates are also through pipx
+pipx upgrade gatech-aws-credentials
 ```
 
 ## Run
