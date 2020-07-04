@@ -486,6 +486,7 @@ def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host
     gatech_config.set(profile_name, "SecretAccessKey", credentials["SecretAccessKey"])
     gatech_config.set(profile_name, "SessionToken", credentials["SessionToken"])
     gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
+    gatech_config.set(profile_name, "Version", credentials["Version"])
 
     with open(gatech_config_file, "w") as file:
         gatech_config.write(file)
