@@ -482,8 +482,8 @@ def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
 
-    for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Version"):
-        gatech_config.set(profile_name, field, credentials[field])
+    for field in ("AccessKeyId", "SecretAccessKey", "SessionToken"):
+        gatech_config.set(profile_name, field, str(credentials[field]))
 
     gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
 
@@ -598,8 +598,10 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
                 credentials = {}
 
                 # AWS CLI is case-sensitive but ConfigParser is not
-                for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration", "Version"):
+                for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration"):
                     credentials[field] = gatech_config.get(profile_name, field)
+
+                credentials["Version"] = 1
 
                 print_credentials(credentials)
                 sys.exit(0)
