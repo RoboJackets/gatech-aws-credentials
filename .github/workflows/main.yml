@@ -37,21 +37,21 @@ jobs:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-pip-${{ hashFiles('**/poetry.lock') }}
 
     - name: Cache virtualenv
       uses: actions/cache@v2
       id: cache-virtualenv
       with:
-        path: ~/.virtualenvs
-        key: poetry-${{ hashFiles('**/poetry.lock') }}
+        path: /home/runner/.cache/pypoetry/virtualenvs/
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          poetry-${{ hashFiles('**/poetry.lock') }}
+          ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
     - run: poetry run black --check gatech_aws_credentials.py
 
-    - run: poetry run flake8 --check gatech_aws_credentials.py
+    - run: poetry run flake8 gatech_aws_credentials.py
 
-    - run: poetry run pylint --check gatech_aws_credentials.py
+    - run: poetry run pylint gatech_aws_credentials
 
     - run: poetry run mypy --check gatech_aws_credentials.py
