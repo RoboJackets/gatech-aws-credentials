@@ -6,7 +6,7 @@ https://aws.amazon.com/blogs/security/how-to-implement-federated-api-and-cli-acc
 """
 from argparse import ArgumentParser
 from configparser import ConfigParser
-from datetime import datetime
+from datetime import datetime, timezone
 from getpass import getpass
 from importlib.metadata import version
 from json import dumps
@@ -53,6 +53,7 @@ CONFIGURE = "configure"
 GATECH = "gatech"
 GET_TGT_URL = "https://{hostname}/cas/v1/tickets"
 HTML_PARSER = "html.parser"
+ISO_8601 = "%Y-%m-%dT%H:%M:%S%z"
 KEYRING_SERVICE_NAME = "gatech-aws-credentials"
 KEYRING_TGT_SUFFIX = "_tgt_url"
 PASSWORD = "password"
@@ -290,6 +291,10 @@ def datetime_to_iso_8601(obj: datetime) -> str:
     raise TypeError(f"{type(obj)} is not serializable")
 
 
+def print_credentials(credentials: dict) -> None:
+    print(dumps(credentials, indent=2, default=datetime_to_iso_8601))
+
+
 def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     gatech_config: ConfigParser, aws_config: ConfigParser, saml_url: str, cas_host: str,
 ) -> None:
@@ -408,10 +413,11 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     print(f"All done! You may want to review {aws_config_file} to see what this did.")
 
 
-def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: str) -> None:
+def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host: str, account: int, role: str) -> None:
     """
     Retrieve credentials for a given username, account, and role, using the provided CAS host and SAML URL
 
+    :param gatech_config: the configuration for this application
     :param username: the username of the user
     :param saml_url: the URL to use to exchange a service ticket for a SAML response
     :param cas_host: the CAS host to use for exchanging credentials for a TGT and then a ST
@@ -422,6 +428,9 @@ def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: st
     logger = logging.getLogger()
     aws_credentials_file = path.expanduser(AWS_DIR) + "credentials"
     aws_credentials = ConfigParser()
+
+    home = path.expanduser(AWS_DIR)
+    gatech_config_file = home + GATECH
 
     read_config_file(aws_credentials_file, aws_credentials)
 
@@ -465,22 +474,23 @@ def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: st
             "The requested role was not found in the SAML response. Make sure you still have access."
         )
         sys.exit(1)
+
     credentials["Version"] = 1
 
     profile_name = build_profile_name(account, role)
 
-    if not aws_credentials.has_section(profile_name):
-        aws_credentials.add_section(profile_name)
+    if not gatech_config.has_section(profile_name):
+        gatech_config.add_section(profile_name)
 
-    aws_credentials.set(profile_name, "aws_access_key_id", credentials["AccessKeyId"])
-    aws_credentials.set(profile_name, "aws_secret_access_key", credentials["SecretAccessKey"])
-    aws_credentials.set(profile_name, "aws_session_token", credentials["SessionToken"])
-    aws_credentials.set(profile_name, "expiration", datetime_to_iso_8601(credentials["Expiration"]))
+    gatech_config.set(profile_name, "AccessKeyId", credentials["AccessKeyId"])
+    gatech_config.set(profile_name, "SecretAccessKey", credentials["SecretAccessKey"])
+    gatech_config.set(profile_name, "SessionToken", credentials["SessionToken"])
+    gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
 
-    with open(aws_credentials_file, "w") as file:
-        aws_credentials.write(file)
+    with open(gatech_config_file, "w") as file:
+        gatech_config.write(file)
 
-    print(dumps(credentials, indent=2, default=datetime_to_iso_8601))
+    print_credentials(credentials)
 
 
 def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-many-statements
@@ -579,7 +589,16 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
             )
             sys.exit(1)
 
-        retrieve(username, saml_url, cas_host, args.account, args.role)
+        logger.debug("Looking in config file for existing credentials")
+        profile_name = build_profile_name(args.account, args.role)
+        if gatech_config.has_section(profile_name):
+            expiring_in = (datetime.strptime(gatech_config.get(profile_name, 'Expiration'), ISO_8601) - datetime.now(timezone.utc)).total_seconds()
+            logger.debug(f"Found credentials expiring in {expiring_in} seconds")
+            if expiring_in > 60:
+                print_credentials(dict(gatech_config.items(profile_name)))
+                sys.exit(0)
+
+        retrieve(gatech_config, username, saml_url, cas_host, args.account, args.role)
     else:
         # This should be prevented by argparse but checking here just in case
         logger.error("An unexpected action was passed. Rerun with --help.")
