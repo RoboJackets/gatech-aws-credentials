@@ -20,6 +20,10 @@ pylint = "^2.5.3"
 [tool.poetry.scripts]
 gatech-aws-credentials = 'gatech_aws_credentials:main'
 
+[tool.black]
+line-length = 100
+target-version = ['py38']
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
