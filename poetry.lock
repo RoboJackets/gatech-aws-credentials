@@ -345,6 +345,14 @@ python = "<3.4.0 || >=3.5.0"
 version = ">=1.20,<1.26"
 
 [[package]]
+category = "dev"
+description = "boto3 code assistance for any API in any IDE, always up to date"
+name = "botostubs"
+optional = false
+python-versions = "*"
+version = "0.12.1.14.16"
+
+[[package]]
 category = "main"
 description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
@@ -761,7 +769,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "661ddf72e67b1a3c6284bc5a27ab1b2d6d57fdef78900a26b9b0ae7ea88f6662"
+content-hash = "80be133a356d19941da639d3ceedb67e4b88230a63fc490cdbb55f109cc4c0a3"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -797,6 +805,10 @@ boto3-stubs = [
 botocore = [
     {file = "botocore-1.17.16-py2.py3-none-any.whl", hash = "sha256:99d995ef99cf77458a661f3fc64e0c3a4ce77ca30facfdf0472f44b2953dd856"},
     {file = "botocore-1.17.16.tar.gz", hash = "sha256:fe0c4f7cd6b67eff3b7cb8dff6709a65d6fca10b7b7449a493b2036915e98b4c"},
+]
+botostubs = [
+    {file = "botostubs-0.12.1.14.16-py3-none-any.whl", hash = "sha256:3b8d1413aa98f37e06b02f2e9b1ed937afa00e606e81ddc08d1efe4db0d6dadd"},
+    {file = "botostubs-0.12.1.14.16.tar.gz", hash = "sha256:3e4b2881060925fdbca782b1936e899a637f03d1ceb83635ccec3c1b69d1389b"},
 ]
 certifi = [
     {file = "certifi-2020.6.20-py2.py3-none-any.whl", hash = "sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41"},

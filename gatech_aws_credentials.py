@@ -12,15 +12,15 @@ from importlib.metadata import version
 from json import dumps
 from os import path, mkdir
 from re import search
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Union
 from urllib.parse import urlparse, parse_qs, quote
 import base64
 import logging
 import sys
 import xml.etree.ElementTree as ElementTree
 
-from botocore import UNSIGNED
-from botocore.config import Config
+from botocore import UNSIGNED  # type: ignore
+from botocore.config import Config  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
 from keyring import get_password, set_password  # type: ignore
 from requests import Session
@@ -609,7 +609,7 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
             ).total_seconds()
             logger.debug("Found credentials expiring in {} seconds".format(expiring_in))
             if expiring_in > 60:
-                credentials = {}
+                credentials: Dict[str, Union[str, int]] = {}
 
                 # AWS CLI is case-sensitive but ConfigParser is not
                 for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration"):

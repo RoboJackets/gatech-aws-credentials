@@ -15,6 +15,7 @@ keyring = "^21.2.1"
 
 [tool.poetry.dev-dependencies]
 boto3-stubs = "*"
+botostubs = "^0.12"
 black = "^19.10b0"
 flake8 = "^3.8.3"
 pylint = "^2.5.3"
