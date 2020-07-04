@@ -482,8 +482,10 @@ def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
 
-    for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration", "Version"):
-        gatech_config.set(profile_name, field, datetime_to_iso_8601(credentials[field]))
+    for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Version"):
+        gatech_config.set(profile_name, field, credentials[field])
+
+    gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
 
     with open(gatech_config_file, "w") as file:
         gatech_config.write(file)
