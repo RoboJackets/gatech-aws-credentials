@@ -482,11 +482,8 @@ def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
 
-    gatech_config.set(profile_name, "AccessKeyId", credentials["AccessKeyId"])
-    gatech_config.set(profile_name, "SecretAccessKey", credentials["SecretAccessKey"])
-    gatech_config.set(profile_name, "SessionToken", credentials["SessionToken"])
-    gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
-    gatech_config.set(profile_name, "Version", credentials["Version"])
+    for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration", "Version"):
+        gatech_config.set(profile_name, field, datetime_to_iso_8601(credentials[field]))
 
     with open(gatech_config_file, "w") as file:
         gatech_config.write(file)
@@ -596,7 +593,13 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
             expiring_in = (datetime.strptime(gatech_config.get(profile_name, 'Expiration'), ISO_8601) - datetime.now(timezone.utc)).total_seconds()
             logger.debug(f"Found credentials expiring in {expiring_in} seconds")
             if expiring_in > 60:
-                print_credentials(dict(gatech_config.items(profile_name)))
+                credentials = {}
+
+                # AWS CLI is case-sensitive but ConfigParser is not
+                for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration", "Version"):
+                    credentials[field] = gatech_config.get(profile_name, field)
+
+                print_credentials(credentials)
                 sys.exit(0)
 
         retrieve(gatech_config, username, saml_url, cas_host, args.account, args.role)
