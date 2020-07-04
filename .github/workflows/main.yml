@@ -20,7 +20,7 @@ jobs:
 
     - run: python3.8 -m pip install --user poetry
 
-    - run: ~/.poetry/bin/poetry install
+    - run: ~/.local/bin/poetry install
 
     - name: Cache Poetry virtualenv
       uses: actions/cache@v1
@@ -36,25 +36,25 @@ jobs:
     needs: poetry-install
 
     steps:
-      - run: poetry run black --check gatech_aws_credentials.py
+      - run: ~/.local/bin/poetry run black --check gatech_aws_credentials.py
 
   flake8:
     runs-on: ubuntu-20.04
     needs: poetry-install
 
     steps:
-      - run: poetry run flake8 gatech_aws_credentials.py
+      - run: ~/.local/bin/poetry run flake8 gatech_aws_credentials.py
 
   pylint:
     runs-on: ubuntu-20.04
     needs: poetry-install
 
     steps:
-      - run: poetry run pylint gatech_aws_credentials
+      - run: ~/.local/bin/poetry run pylint gatech_aws_credentials
 
   mypy:
     runs-on: ubuntu-20.04
     needs: poetry-install
 
     steps:
-      - run: poetry run mypy gatech_aws_credentials.py
+      - run: ~/.local/bin/poetry run mypy gatech_aws_credentials.py
