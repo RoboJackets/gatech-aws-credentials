@@ -263,9 +263,7 @@ def get_aws_credentials_from_saml_response(
     """
     roles = parse_saml_response_to_roles(saml_response)
 
-    client = boto3.client(
-        "sts", config=Config(signature_version=UNSIGNED)
-    )
+    client = boto3.client("sts", config=Config(signature_version=UNSIGNED))
 
     for role in roles:
         chunks = role.split(",")
@@ -292,6 +290,12 @@ def datetime_to_iso_8601(obj: datetime) -> str:
 
 
 def print_credentials(credentials: dict) -> None:
+    """
+    Print a dict of credentials for consumption by the AWS CLI
+
+    :param credentials: the credentials dict
+    :return: None
+    """
     print(dumps(credentials, indent=2, default=datetime_to_iso_8601))
 
 
@@ -413,7 +417,14 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     print(f"All done! You may want to review {aws_config_file} to see what this did.")
 
 
-def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host: str, account: int, role: str) -> None:
+def retrieve(  # pylint: disable=too-many-arguments,too-many-locals
+    gatech_config: ConfigParser,
+    username: str,
+    saml_url: str,
+    cas_host: str,
+    account: int,
+    role: str,
+) -> None:
     """
     Retrieve credentials for a given username, account, and role, using the provided CAS host and SAML URL
 
@@ -493,7 +504,7 @@ def retrieve(gatech_config: ConfigParser, username: str, saml_url: str, cas_host
     print_credentials(credentials)
 
 
-def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-many-statements
+def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-many-statements,too-many-locals
     """
     Parses command-line arguments and calls out to either configure(...) or retrieve(...)
 
@@ -592,8 +603,11 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
         logger.debug("Looking in config file for existing credentials")
         profile_name = build_profile_name(args.account, args.role)
         if gatech_config.has_section(profile_name):
-            expiring_in = (datetime.strptime(gatech_config.get(profile_name, 'Expiration'), ISO_8601) - datetime.now(timezone.utc)).total_seconds()
-            logger.debug(f"Found credentials expiring in {expiring_in} seconds")
+            expiring_in = (
+                datetime.strptime(gatech_config.get(profile_name, "Expiration"), ISO_8601)
+                - datetime.now(timezone.utc)
+            ).total_seconds()
+            logger.debug("Found credentials expiring in {} seconds".format(expiring_in))
             if expiring_in > 60:
                 credentials = {}
 
