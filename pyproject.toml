@@ -2,7 +2,9 @@
 name = "gatech-aws-credentials"
 version = "0"
 description = "Retrieve credentials for Georgia Tech AWS accounts using CAS"
+license = "MIT"
 authors = ["Kristaps Berzinch <kristapsberzinch@gmail.com>"]
+repository = "https://github.com/RoboJackets/gatech-aws-credentials"
 
 [tool.poetry.dependencies]
 python = "^3.6"
