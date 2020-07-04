@@ -19,6 +19,8 @@ import logging
 import sys
 import xml.etree.ElementTree as ElementTree
 
+from botocore import UNSIGNED
+from botocore.config import Config
 from bs4 import BeautifulSoup  # type: ignore
 from keyring import get_password, set_password  # type: ignore
 from requests import Session
@@ -261,7 +263,7 @@ def get_aws_credentials_from_saml_response(
     roles = parse_saml_response_to_roles(saml_response)
 
     client = boto3.client(
-        "sts", aws_access_key_id=None, aws_secret_access_key=None, aws_session_token=None,
+        "sts", config=Config(signature_version=UNSIGNED)
     )
 
     for role in roles:
