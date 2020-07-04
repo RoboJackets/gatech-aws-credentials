@@ -12,15 +12,15 @@ from importlib.metadata import version
 from json import dumps
 from os import path, mkdir
 from re import search
-from typing import Optional
+from typing import Optional, Tuple
 from urllib.parse import urlparse, parse_qs, quote
 import base64
 import logging
 import sys
 import xml.etree.ElementTree as ElementTree
 
-from bs4 import BeautifulSoup
-from keyring import get_password, set_password
+from bs4 import BeautifulSoup  # type: ignore
+from keyring import get_password, set_password  # type: ignore
 from requests import Session
 import boto3
 
@@ -178,6 +178,8 @@ def parse_saml_response_to_roles(saml_response: str) -> list:
                 roles.append(attribute_value.text)
 
     for role in roles:
+        if role is None:
+            raise TypeError("Unexpected None in list of roles")
         chunks = role.split(",")
         if "saml-provider" in chunks[0]:
             new_role = chunks[1] + "," + chunks[0]
@@ -188,7 +190,7 @@ def parse_saml_response_to_roles(saml_response: str) -> list:
     return roles
 
 
-def parse_role_arn_to_account_name_pair(role: str) -> (str, str):
+def parse_role_arn_to_account_name_pair(role: str) -> Tuple[str, str]:
     """
     Parses out the account ID and role name from a role ARN
 
@@ -196,6 +198,8 @@ def parse_role_arn_to_account_name_pair(role: str) -> (str, str):
     :return: the account ID and role name as a tuple
     """
     matches = search(r"arn:aws:iam::(\d{12}):role/([a-zA-Z-_]+)", role)
+    if matches is None:
+        raise ValueError("Could not parse role ARN")
     return matches.group(1), matches.group(2)
 
 
@@ -306,7 +310,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     if gatech_config.has_section(GATECH):
         username = gatech_config.get(GATECH, USERNAME).lower()
     else:
-        username = None
+        username = None  # type: ignore
 
     if username is None or not is_valid_gatech_username(username):
         username = input("Username: ").lower()
@@ -450,11 +454,12 @@ def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: st
     set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt)
 
     credentials = get_aws_credentials_from_saml_response(saml_response, account, role)
-    credentials["Version"] = 1
     if credentials is None:
         logger.error(
             "The requested role was not found in the SAML response. Make sure you still have access."
         )
+        sys.exit(1)
+    credentials["Version"] = 1
     print(dumps(credentials, indent=2, default=datetime_to_iso_8601))
 
 

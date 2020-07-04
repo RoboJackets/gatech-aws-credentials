@@ -16,6 +16,7 @@ boto3-stubs = "*"
 black = "^19.10b0"
 flake8 = "^3.8.3"
 pylint = "^2.5.3"
+mypy = "^0.782"
 
 [tool.poetry.scripts]
 gatech-aws-credentials = 'gatech_aws_credentials:main'
