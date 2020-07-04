@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gatech-aws-credentials"
-version = "0"
+version = "1"
 description = "Retrieve credentials for Georgia Tech AWS accounts using CAS"
 license = "MIT"
 authors = ["Kristaps Berzinch <kristapsberzinch@gmail.com>"]
