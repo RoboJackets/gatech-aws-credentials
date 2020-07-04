@@ -190,7 +190,7 @@ def parse_saml_response_to_roles(saml_response: str) -> list:
     return roles
 
 
-def parse_role_arn_to_account_name_pair(role: str) -> Tuple[str, str]:
+def parse_role_arn_to_account_name_pair(role: str) -> Tuple[int, str]:
     """
     Parses out the account ID and role name from a role ARN
 
@@ -200,10 +200,10 @@ def parse_role_arn_to_account_name_pair(role: str) -> Tuple[str, str]:
     matches = search(r"arn:aws:iam::(\d{12}):role/([a-zA-Z-_]+)", role)
     if matches is None:
         raise ValueError("Could not parse role ARN")
-    return matches.group(1), matches.group(2)
+    return int(matches.group(1)), matches.group(2)
 
 
-def build_profile_name(account: str, role: str) -> str:
+def build_profile_name(account: int, role: str) -> str:
     """
     Builds a profile name from an account ID and role name
 
@@ -211,10 +211,10 @@ def build_profile_name(account: str, role: str) -> str:
     :param role: the role name
     :return: a profile name
     """
-    return f"gatech_{account}_{role}"
+    return f"gatech_{account:12}_{role}"
 
 
-def build_credential_process_string(account: str, role: str) -> str:
+def build_credential_process_string(account: int, role: str) -> str:
     """
     Builds the credential_process value for a given account and role
 
@@ -222,11 +222,11 @@ def build_credential_process_string(account: str, role: str) -> str:
     :param role: the role name
     :return: the credential_process value
     """
-    return f"gatech-aws-credentials retrieve --account {account} --role {role}"
+    return f"gatech-aws-credentials retrieve --account {account:12} --role {role}"
 
 
 def add_profile_to_config(
-    aws_config: ConfigParser, section_name: str, account: str, role: str
+    aws_config: ConfigParser, section_name: str, account: int, role: str
 ) -> None:
     """
     Adds the given account and role to the config under the given section name
@@ -418,6 +418,10 @@ def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: st
     :return: None
     """
     logger = logging.getLogger()
+    aws_credentials_file = path.expanduser(AWS_DIR) + "credentials"
+    aws_credentials = ConfigParser()
+
+    read_config_file(aws_credentials_file, aws_credentials)
 
     if not is_valid_gatech_username(username):
         logger.error(ERROR_INVALID_USERNAME.format(source="in the configuration file"))
@@ -460,6 +464,20 @@ def retrieve(username: str, saml_url: str, cas_host: str, account: int, role: st
         )
         sys.exit(1)
     credentials["Version"] = 1
+
+    profile_name = build_profile_name(account, role)
+
+    if not aws_credentials.has_section(profile_name):
+        aws_credentials.add_section(profile_name)
+
+    aws_credentials.set(profile_name, "aws_access_key_id", credentials["AccessKeyId"])
+    aws_credentials.set(profile_name, "aws_secret_access_key", credentials["SecretAccessKey"])
+    aws_credentials.set(profile_name, "aws_session_token", credentials["SessionToken"])
+    aws_credentials.set(profile_name, "expiration", datetime_to_iso_8601(credentials["Expiration"]))
+
+    with open(aws_credentials_file, "w") as file:
+        aws_credentials.write(file)
+
     print(dumps(credentials, indent=2, default=datetime_to_iso_8601))
 
 
