@@ -1,4 +1,5 @@
 # gatech-aws-credentials
+![CI](https://github.com/RoboJackets/gatech-aws-credentials/workflows/CI/badge.svg)[![GitHub license](https://img.shields.io/github/license/RoboJackets/gatech-aws-credentials)](https://github.com/RoboJackets/gatech-aws-credentials/blob/main/LICENSE)
 Retrieve credentials for Georgia Tech AWS accounts using CAS
 
 ## Install
