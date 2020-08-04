@@ -273,7 +273,7 @@ def get_aws_credentials_from_saml_response(
     """
     roles = parse_saml_response_to_roles(saml_response)
 
-    client = boto3.client("sts", config=Config(signature_version=UNSIGNED))  # type: ignore
+    client = boto3.client("sts", config=Config(signature_version=UNSIGNED))
 
     for role in roles:
         chunks = role.split(",")
