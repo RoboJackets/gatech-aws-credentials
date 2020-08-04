@@ -12,7 +12,7 @@ from importlib.metadata import version
 from json import dumps
 from os import path, mkdir
 from re import search
-from typing import Optional, Tuple, Dict, Union
+from typing import Optional, Tuple, Dict, Union, List
 from urllib.parse import urlparse, parse_qs, quote
 import base64
 import logging
@@ -24,7 +24,7 @@ from botocore.config import Config  # type: ignore
 from bs4 import BeautifulSoup  # type: ignore
 from keyring import get_password, set_password  # type: ignore
 from requests import Session
-import boto3
+import boto3  # type: ignore
 
 # Defaults
 DEFAULT_CAS_HOST = "cas-test.gatech.edu"
@@ -114,7 +114,11 @@ def get_ticket_granting_ticket_url(
     if response.status_code == 401:
         return None
 
-    return BeautifulSoup(response.text, HTML_PARSER).form["action"]
+    tgt_url = BeautifulSoup(response.text, HTML_PARSER).form["action"]
+
+    assert isinstance(tgt_url, str)
+
+    return tgt_url
 
 
 def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional[str]:
@@ -160,10 +164,14 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(saml_request.text)
         sys.exit(1)
 
-    return BeautifulSoup(saml_request.text, HTML_PARSER).form.input["value"]
+    saml_response = BeautifulSoup(saml_request.text, HTML_PARSER).form.input["value"]
+
+    assert isinstance(saml_response, str)
+
+    return saml_response
 
 
-def parse_saml_response_to_roles(saml_response: str) -> list:
+def parse_saml_response_to_roles(saml_response: str) -> List[str]:
     """
     Parses a SAML response to a list of role,saml-provider pairs
 
@@ -178,7 +186,9 @@ def parse_saml_response_to_roles(saml_response: str) -> list:
             for attribute_value in saml2attribute.iter(
                 "{urn:oasis:names:tc:SAML:2.0:assertion}AttributeValue"
             ):
-                roles.append(attribute_value.text)
+                role = attribute_value.text
+                assert isinstance(role, str)
+                roles.append(role)
 
     for role in roles:
         if role is None:
@@ -252,7 +262,7 @@ def add_profile_to_config(
 
 def get_aws_credentials_from_saml_response(
     saml_response: str, account: int, role_name: str
-) -> Optional[dict]:
+) -> Optional[Dict[str, Union[str, int, datetime]]]:
     """
     Exchanges a SAML response for AWS credentials for the given account and role name
 
@@ -263,21 +273,23 @@ def get_aws_credentials_from_saml_response(
     """
     roles = parse_saml_response_to_roles(saml_response)
 
-    client = boto3.client("sts", config=Config(signature_version=UNSIGNED))
+    client = boto3.client("sts", config=Config(signature_version=UNSIGNED))  # type: ignore
 
     for role in roles:
         chunks = role.split(",")
         role_arn = chunks[0]
         principal_arn = chunks[1]
         if role_arn == ROLE_ARN.format(account=account, role_name=role_name):
-            return client.assume_role_with_saml(
+            credentials = client.assume_role_with_saml(
                 RoleArn=role_arn, PrincipalArn=principal_arn, SAMLAssertion=saml_response,
             )["Credentials"]
+            assert isinstance(credentials, dict)
+            return credentials
 
     return None
 
 
-def datetime_to_iso_8601(obj: datetime) -> str:
+def datetime_to_iso_8601(obj: Union[datetime, str, int]) -> str:
     """
     Convert a datetime to ISO 8601. For use when serializing the credentials dict.
 
@@ -289,7 +301,7 @@ def datetime_to_iso_8601(obj: datetime) -> str:
     raise TypeError(f"{type(obj)} is not serializable")
 
 
-def print_credentials(credentials: dict) -> None:
+def print_credentials(credentials: Dict[str, Union[str, int, datetime]]) -> None:
     """
     Print a dict of credentials for consumption by the AWS CLI
 
@@ -609,7 +621,7 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
             ).total_seconds()
             logger.debug("Found credentials expiring in {} seconds".format(expiring_in))
             if expiring_in > 60:
-                credentials: Dict[str, Union[str, int]] = {}
+                credentials: Dict[str, Union[str, int, datetime]] = {}
 
                 # AWS CLI is case-sensitive but ConfigParser is not
                 for field in ("AccessKeyId", "SecretAccessKey", "SessionToken", "Expiration"):
