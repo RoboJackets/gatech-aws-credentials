@@ -4,27 +4,31 @@ Retrieve credentials for Georgia Tech AWS accounts using CAS
 Inspired by
 https://aws.amazon.com/blogs/security/how-to-implement-federated-api-and-cli-access-using-saml-2-0-and-ad-fs/
 """
+import base64
+import logging
+import sys
+import xml.etree.ElementTree as ElementTree
 from argparse import ArgumentParser
 from configparser import ConfigParser
 from datetime import datetime, timezone
 from getpass import getpass
 from importlib.metadata import version
 from json import dumps
-from os import path, mkdir
+from os import mkdir, path
 from re import search
-from typing import Optional, Tuple, Dict, Union, List
-from urllib.parse import urlparse, parse_qs, quote
-import base64
-import logging
-import sys
-import xml.etree.ElementTree as ElementTree
+from typing import Dict, List, Optional, Tuple, Union
+from urllib.parse import parse_qs, quote, urlparse
+
+import boto3  # type: ignore
 
 from botocore import UNSIGNED  # type: ignore
 from botocore.config import Config  # type: ignore
+
 from bs4 import BeautifulSoup  # type: ignore
+
 from keyring import get_password, set_password  # type: ignore
+
 from requests import Session
-import boto3  # type: ignore
 
 # Defaults
 DEFAULT_CAS_HOST = "cas-test.gatech.edu"
