@@ -17,7 +17,7 @@ from json import dumps
 from os import mkdir, path
 from re import search
 from typing import Dict, List, Optional, Tuple, Union
-from urllib.parse import parse_qs, quote, urlparse
+from urllib.parse import quote
 
 import boto3  # type: ignore
 
