@@ -137,14 +137,14 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     logger = logging.getLogger()
     start_request = session.get(saml_url, allow_redirects=False)
 
-    if start_request.status_code != 302:
+    if start_request.status_code != 200:
         logger.error(
             ERROR_UNEXPECTED_RESPONSE_CODE.format(
                 code=start_request.status_code, action="starting SAML flow"
             )
         )
 
-    service = parse_qs(urlparse(start_request.headers["Location"]).query)["service"][0]
+    service = BeautifulSoup(start_request.text, HTML_PARSER).form.input["value"]
 
     service_ticket_request = session.post(tgt_url, data={"service": service})
 
@@ -157,7 +157,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(service_ticket_request.text)
         return None
 
-    saml_request = session.get(service + "&ticket=" + quote(service_ticket_request.text))
+    saml_request = session.post(service + "&ticket=" + quote(service_ticket_request.text))
 
     if saml_request.status_code != 200:
         logger.error(
