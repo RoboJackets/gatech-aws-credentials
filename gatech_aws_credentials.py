@@ -436,7 +436,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     print(f"All done! You may want to review {aws_config_file} to see what this did.")
 
 
-def retrieve(  # pylint: disable=too-many-arguments,too-many-locals
+def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-statements
     gatech_config: ConfigParser,
     username: str,
     saml_url: str,
@@ -513,9 +513,11 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals
     if not aws_credentials.has_section(profile_name_credfile):
         aws_credentials.add_section(profile_name_credfile)
 
-    aws_credentials.set(profile_name_credfile, "aws_access_key_id", credentials["AccessKeyId"])
-    aws_credentials.set(profile_name_credfile, "aws_secret_access_key", credentials["SecretAccessKey"])
-    aws_credentials.set(profile_name_credfile, "aws_session_token", credentials["SessionToken"])
+    aws_credentials.set(profile_name_credfile, "aws_access_key_id", str(credentials["AccessKeyId"]))
+    aws_credentials.set(
+        profile_name_credfile, "aws_secret_access_key", str(credentials["SecretAccessKey"])
+    )
+    aws_credentials.set(profile_name_credfile, "aws_session_token", str(credentials["SessionToken"]))
 
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
