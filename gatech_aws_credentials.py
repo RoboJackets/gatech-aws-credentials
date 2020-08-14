@@ -517,7 +517,9 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
     aws_credentials.set(
         profile_name_credfile, "aws_secret_access_key", str(credentials["SecretAccessKey"])
     )
-    aws_credentials.set(profile_name_credfile, "aws_session_token", str(credentials["SessionToken"]))
+    aws_credentials.set(
+        profile_name_credfile, "aws_session_token", str(credentials["SessionToken"])
+    )
 
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
