@@ -257,8 +257,6 @@ def add_profile_to_config(
     if not aws_config.has_section(section_name):
         aws_config.add_section(section_name)
 
-    aws_config.set(section_name, "region", "us-east-1")
-    aws_config.set(section_name, "output", "json")
     aws_config.set(
         section_name, "credential_process", build_credential_process_string(account, role),
     )
@@ -394,6 +392,11 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
         logger.error("You do not have access to any roles.")
         sys.exit(1)
 
+    if not aws_config.has_section("default"):
+        aws_config.add_section("default")
+        aws_config.set("default", "region", "us-east-1")
+        aws_config.set("default", "output", "json")
+
     if len(roles) > 0:
         for role in roles:
             account, name = parse_role_arn_to_account_name_pair(role.split(",")[0])
@@ -505,6 +508,14 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals
     credentials["Version"] = 1
 
     profile_name = build_profile_name(account, role)
+    profile_name_credfile = build_profile_name(account, role) + "_credfile"
+
+    if not aws_credentials.has_section(profile_name_credfile):
+        aws_credentials.add_section(profile_name_credfile)
+
+    aws_credentials.set(profile_name_credfile, "aws_access_key_id", credentials["AccessKeyId"])
+    aws_credentials.set(profile_name_credfile, "aws_secret_access_key", credentials["SecretAccessKey"])
+    aws_credentials.set(profile_name_credfile, "aws_session_token", credentials["SessionToken"])
 
     if not gatech_config.has_section(profile_name):
         gatech_config.add_section(profile_name)
@@ -516,6 +527,9 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals
 
     with open(gatech_config_file, "w") as file:
         gatech_config.write(file)
+
+    with open(aws_credentials_file, "w") as file:
+        aws_credentials.write(file)
 
     print_credentials(credentials)
 
