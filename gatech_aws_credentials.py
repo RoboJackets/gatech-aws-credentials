@@ -115,6 +115,9 @@ def get_ticket_granting_ticket_url(
         GET_TGT_URL.format(hostname=hostname), data={USERNAME: username, PASSWORD: password},
     )
 
+    if response.status_code == 423:
+        return None
+
     if response.status_code == 401:
         return None
 
