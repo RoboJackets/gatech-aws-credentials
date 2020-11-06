@@ -38,6 +38,9 @@ DEFAULT_SAML_URL = "https://cas-test.gatech.edu/idp/profile/SAML2/Unsolicited/SS
 ERROR_INVALID_CREDENTIALS_IN_KEYRING = (
     "Invalid credentials in keyring. Run `gatech-aws-credentials configure` to update."
 )
+ERROR_CAS_DOES_NOT_LIKE_YOU = (
+    "CAS returned a 423 error. Run `gatech-aws-credentials configure` to clear state."
+)
 ERROR_INVALID_USERNAME = (
     "The username {source} does not match the expected format. If this is a real account that has"
     + " access to AWS, please contact the developers to update the validation logic."
@@ -101,7 +104,7 @@ def is_valid_gatech_username(username: str) -> bool:
 
 def get_ticket_granting_ticket_url(
     hostname: str, session: Session, username: str, password: str
-) -> Optional[str]:
+) -> Tuple[int, Optional[str]]:
     """
     Exchanges a username and password for a TGT
 
@@ -115,17 +118,14 @@ def get_ticket_granting_ticket_url(
         GET_TGT_URL.format(hostname=hostname), data={USERNAME: username, PASSWORD: password},
     )
 
-    if response.status_code == 423:
-        return None
-
-    if response.status_code == 401:
-        return None
+    if response.status_code == 423 or response.status_code == 401:
+        return response.status_code, None
 
     tgt_url = BeautifulSoup(response.text, HTML_PARSER).form["action"]
 
     assert isinstance(tgt_url, str)
 
-    return tgt_url
+    return 200, tgt_url
 
 
 def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional[str]:
@@ -365,7 +365,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
 
     session = Session()
 
-    tgt_url = get_ticket_granting_ticket_url(cas_host, session, username, password)
+    (code, tgt_url) = get_ticket_granting_ticket_url(cas_host, session, username, password)
 
     if tgt_url is None and password_from_keyring:
         print(
@@ -377,7 +377,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
 
         print("Checking credentials, please wait...", flush=True)
 
-        tgt_url = get_ticket_granting_ticket_url(cas_host, session, username, password)
+        (code, tgt_url) = get_ticket_granting_ticket_url(cas_host, session, username, password)
 
     if tgt_url is None:
         logger.error("Invalid credentials provided.")
@@ -489,9 +489,9 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
 
     saml_response = get_saml_response(session, saml_url, tgt)
     if saml_response is None:
-        tgt = get_ticket_granting_ticket_url(cas_host, session, username, password)
+        (code, tgt) = get_ticket_granting_ticket_url(cas_host, session, username, password)
         if tgt is None:
-            logger.error(ERROR_INVALID_CREDENTIALS_IN_KEYRING)
+            logger.error(ERROR_INVALID_CREDENTIALS_IN_KEYRING if code == 401 else ERROR_CAS_DOES_NOT_LIKE_YOU)
             sys.exit(1)
 
         saml_response = get_saml_response(session, saml_url, tgt)
