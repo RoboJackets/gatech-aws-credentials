@@ -31,8 +31,8 @@ from keyring import get_password, set_password  # type: ignore
 from requests import Session
 
 # Defaults
-DEFAULT_CAS_HOST = "cas-test.gatech.edu"
-DEFAULT_SAML_URL = "https://cas-test.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices"
+DEFAULT_CAS_HOST = "sso.gatech.edu"
+DEFAULT_SAML_URL = "https://idp.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices"
 
 # Errors handled in several places
 ERROR_INVALID_CREDENTIALS_IN_KEYRING = (
