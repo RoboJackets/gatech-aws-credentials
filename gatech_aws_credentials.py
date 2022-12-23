@@ -32,7 +32,7 @@ from requests import Session
 
 # Defaults
 DEFAULT_CAS_HOST = "sso.gatech.edu"
-DEFAULT_SAML_URL = "https://idp.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices"
+DEFAULT_SAML_URL = "https://sso.gatech.edu/cas/idp/profile/SAML2/Callback?entityId=urn%3Aamazon%3Awebservices"
 
 # Errors handled in several places
 ERROR_INVALID_CREDENTIALS_IN_KEYRING = (
@@ -138,16 +138,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     :return: a SAML response, or None if there was an error exchanging a TGT for a ST
     """
     logger = logging.getLogger()
-    start_request = session.get(saml_url, allow_redirects=False)
-
-    if start_request.status_code != 200:
-        logger.error(
-            ERROR_UNEXPECTED_RESPONSE_CODE.format(
-                code=start_request.status_code, action="starting SAML flow"
-            )
-        )
-
-    service = BeautifulSoup(start_request.text, HTML_PARSER).form.input["value"]
+    service = saml_url
 
     service_ticket_request = session.post(tgt_url, data={"service": service})
 
@@ -160,7 +151,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(service_ticket_request.text)
         return None
 
-    saml_request = session.post(service + "&ticket=" + quote(service_ticket_request.text))
+    saml_request = session.get(service + "&ticket=" + quote(service_ticket_request.text))
 
     if saml_request.status_code != 200:
         logger.error(
