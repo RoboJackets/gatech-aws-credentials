@@ -17,7 +17,7 @@ from json import dumps
 from os import mkdir, path
 from re import search
 from typing import Dict, List, Optional, Tuple, Union
-from urllib.parse import quote
+from urllib.parse import quote, urlparse, parse_qs
 
 import boto3  # type: ignore
 
@@ -138,7 +138,18 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     :return: a SAML response, or None if there was an error exchanging a TGT for a ST
     """
     logger = logging.getLogger()
-    service = saml_url
+
+    start_request = session.get("https://sso.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices", allow_redirects=False)
+
+    if start_request.status_code != 302:
+        logger.error(ERROR_UNEXPECTED_RESPONSE_CODE.format(code=start_request.status_code, action="starting SAML flow"))
+
+    callback_location = start_request.headers.get("Location")
+
+    parts = urlparse(callback_location)
+    query_string = parse_qs(parts.query, strict_parsing=True)
+
+    service = query_string["service"][0]
 
     service_ticket_request = session.post(tgt_url, data={"service": service})
 
@@ -363,7 +374,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     if tgt_url is None and password_from_keyring:
         print(
             f"The credentials found the in keyring were not valid. Please enter the correct password for {username}."
-            + f"To use a different username, please update {gatech_config_file}."
+            + f" To use a different username, please update {gatech_config_file}."
         )
         password = getpass()
         print("")
