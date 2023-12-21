@@ -7,7 +7,6 @@ https://aws.amazon.com/blogs/security/how-to-implement-federated-api-and-cli-acc
 import base64
 import logging
 import sys
-import xml.etree.ElementTree as ElementTree
 from argparse import ArgumentParser
 from configparser import ConfigParser
 from datetime import datetime, timezone
@@ -17,7 +16,8 @@ from json import dumps
 from os import mkdir, path
 from re import search
 from typing import Dict, List, Optional, Tuple, Union
-from urllib.parse import quote
+from urllib.parse import parse_qs, quote, urlparse
+from xml.etree import ElementTree
 
 import boto3  # type: ignore
 
@@ -32,7 +32,9 @@ from requests import Session
 
 # Defaults
 DEFAULT_CAS_HOST = "sso.gatech.edu"
-DEFAULT_SAML_URL = "https://idp.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices"
+DEFAULT_SAML_URL = (
+    "https://sso.gatech.edu/idp/profile/SAML2/Unsolicited/SSO?providerId=urn:amazon:webservices"
+)
 
 # Errors handled in several places
 ERROR_INVALID_CREDENTIALS_IN_KEYRING = (
@@ -118,7 +120,7 @@ def get_ticket_granting_ticket_url(
         GET_TGT_URL.format(hostname=hostname), data={USERNAME: username, PASSWORD: password},
     )
 
-    if response.status_code == 423 or response.status_code == 401:
+    if response.status_code in (423, 401):
         return response.status_code, None
 
     tgt_url = BeautifulSoup(response.text, HTML_PARSER).form["action"]
@@ -138,16 +140,22 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     :return: a SAML response, or None if there was an error exchanging a TGT for a ST
     """
     logger = logging.getLogger()
+
     start_request = session.get(saml_url, allow_redirects=False)
 
-    if start_request.status_code != 200:
+    if start_request.status_code != 302:
         logger.error(
             ERROR_UNEXPECTED_RESPONSE_CODE.format(
                 code=start_request.status_code, action="starting SAML flow"
             )
         )
 
-    service = BeautifulSoup(start_request.text, HTML_PARSER).form.input["value"]
+    callback_location = start_request.headers.get("Location")
+
+    parts = urlparse(callback_location)
+    query_string = parse_qs(parts.query, strict_parsing=True)
+
+    service = query_string["service"][0]
 
     service_ticket_request = session.post(tgt_url, data={"service": service})
 
@@ -160,7 +168,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(service_ticket_request.text)
         return None
 
-    saml_request = session.post(service + "&ticket=" + quote(service_ticket_request.text))
+    saml_request = session.get(service + "&ticket=" + quote(service_ticket_request.text))
 
     if saml_request.status_code != 200:
         logger.error(
@@ -372,7 +380,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     if tgt_url is None and password_from_keyring:
         print(
             f"The credentials found the in keyring were not valid. Please enter the correct password for {username}."
-            + f"To use a different username, please update {gatech_config_file}."
+            + f" To use a different username, please update {gatech_config_file}."
         )
         password = getpass()
         print("")
