@@ -26,6 +26,9 @@ pylint = "^3"
 [tool.poetry.scripts]
 gatech-aws-credentials = 'gatech_aws_credentials:main'
 
+[tool.poetry.group.dev.dependencies]
+types-requests = "^2.31.0.20240106"
+
 [tool.black]
 line-length = 100
 target-version = ['py38']

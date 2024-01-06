@@ -19,14 +19,14 @@ from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, quote, urlparse
 from xml.etree import ElementTree
 
-import boto3  # type: ignore
+import boto3
 
-from botocore import UNSIGNED  # type: ignore
-from botocore.config import Config  # type: ignore
+from botocore import UNSIGNED
+from botocore.config import Config
 
 from bs4 import BeautifulSoup  # type: ignore
 
-from keyring import get_password, set_password  # type: ignore
+from keyring import get_password, set_password
 
 from requests import Session
 
@@ -154,7 +154,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     callback_location = start_request.headers.get("Location")
 
     parts = urlparse(callback_location)
-    query_string = parse_qs(parts.query, strict_parsing=True)
+    query_string = parse_qs(parts.query, strict_parsing=True)  # type: ignore
 
     service = query_string["service"][0]
 
@@ -170,7 +170,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(service_ticket_request.text)
         return None
 
-    saml_request = session.get(service + "&ticket=" + quote(service_ticket_request.text))
+    saml_request = session.get(service + "&ticket=" + quote(service_ticket_request.text))  # type: ignore
 
     if saml_request.status_code != 200:
         logger.error(
@@ -355,7 +355,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     if gatech_config.has_section(GATECH):
         username = gatech_config.get(GATECH, USERNAME).lower()
     else:
-        username = None  # type: ignore
+        username = None
 
     if username is None or not is_valid_gatech_username(username):
         username = input("Username: ").lower()
@@ -366,7 +366,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
 
     # Check for credentials in keychain
     logger.debug("Looking for password in keyring")
-    password = get_password(KEYRING_SERVICE_NAME, username)
+    password = get_password(KEYRING_SERVICE_NAME, username)  # type: ignore
     password_from_keyring = password is not None
 
     if password is None:
@@ -441,8 +441,8 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     with open(aws_config_file, "w", encoding="utf-8") as file:
         aws_config.write(file)
 
-    set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt_url)
-    set_password(KEYRING_SERVICE_NAME, username, password)
+    set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt_url)  # type: ignore
+    set_password(KEYRING_SERVICE_NAME, username, password)  # type: ignore
 
     if not gatech_config.has_section(GATECH):
         gatech_config.add_section(GATECH)
@@ -495,14 +495,14 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
 
     session = Session()
 
-    password = get_password(KEYRING_SERVICE_NAME, username)
+    password = get_password(KEYRING_SERVICE_NAME, username)  # type: ignore
     if password is None:
         logger.error(
             "Could not find password in keychain. Run `gatech-aws-credentials configure` to set it."
         )
         sys.exit(1)
 
-    tgt = get_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX)
+    tgt = get_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX)  # type: ignore
     if tgt is None:
         tgt = get_ticket_granting_ticket_url(cas_host, session, username, password)
         if tgt is None:
@@ -523,7 +523,7 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
             logger.error(ERROR_RETRIEVING_SAML_RESPONSE)
             sys.exit(1)
 
-    set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt)
+    set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt)  # type: ignore
 
     credentials = get_aws_credentials_from_saml_response(saml_response, account, role)
     if credentials is None:
