@@ -672,7 +672,11 @@ def main() -> (
                 datetime.strptime(gatech_config.get(profile_name, "Expiration"), ISO_8601)
                 - datetime.now(timezone.utc)
             ).total_seconds()
-            logger.debug("Found credentials expiring in {} seconds".format(expiring_in))  # pylint: disable=consider-using-f-string
+            logger.debug(
+                "Found credentials expiring in {} seconds".format(  # pylint: disable=consider-using-f-string
+                    expiring_in
+                )
+            )
             if expiring_in > 60:
                 credentials: Dict[str, Union[str, int, datetime]] = {}
 
