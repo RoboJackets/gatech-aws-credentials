@@ -117,7 +117,8 @@ def get_ticket_granting_ticket_url(
     :return: the TGT url, or None if the credentials are wrong
     """
     response = session.post(
-        GET_TGT_URL.format(hostname=hostname), data={USERNAME: username, PASSWORD: password},
+        GET_TGT_URL.format(hostname=hostname),
+        data={USERNAME: username, PASSWORD: password},
     )
 
     if response.status_code in (423, 401):
@@ -162,7 +163,8 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
     if service_ticket_request.status_code != 200:
         logger.debug(
             ERROR_UNEXPECTED_RESPONSE_CODE.format(
-                code=service_ticket_request.status_code, action="retrieving service ticket",
+                code=service_ticket_request.status_code,
+                action="retrieving service ticket",
             )
         )
         logger.debug(service_ticket_request.text)
@@ -269,7 +271,9 @@ def add_profile_to_config(
         aws_config.add_section(section_name)
 
     aws_config.set(
-        section_name, "credential_process", build_credential_process_string(account, role),
+        section_name,
+        "credential_process",
+        build_credential_process_string(account, role),
     )
 
 
@@ -294,7 +298,9 @@ def get_aws_credentials_from_saml_response(
         principal_arn = chunks[1]
         if role_arn == ROLE_ARN.format(account=account, role_name=role_name):
             credentials = client.assume_role_with_saml(
-                RoleArn=role_arn, PrincipalArn=principal_arn, SAMLAssertion=saml_response,
+                RoleArn=role_arn,
+                PrincipalArn=principal_arn,
+                SAMLAssertion=saml_response,
             )["Credentials"]
             assert isinstance(credentials, dict)
             return credentials
@@ -325,7 +331,10 @@ def print_credentials(credentials: Dict[str, Union[str, int, datetime]]) -> None
 
 
 def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    gatech_config: ConfigParser, aws_config: ConfigParser, saml_url: str, cas_host: str,
+    gatech_config: ConfigParser,
+    aws_config: ConfigParser,
+    saml_url: str,
+    cas_host: str,
 ) -> None:
     """
     Write out configuration files for future use by retrieve(...)
@@ -414,7 +423,10 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
         for role in roles:
             account, name = parse_role_arn_to_account_name_pair(role.split(",")[0])
             add_profile_to_config(
-                aws_config, "profile " + build_profile_name(account, name), account, name,
+                aws_config,
+                "profile " + build_profile_name(account, name),
+                account,
+                name,
             )
 
     aws_directory = path.expanduser(AWS_DIR)
@@ -553,7 +565,9 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
     print_credentials(credentials)
 
 
-def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-many-statements,too-many-locals
+def main() -> (
+    None
+):  # pylint: disable=unused-variable,too-many-branches,too-many-statements,too-many-locals
     """
     Parses command-line arguments and calls out to either configure(...) or retrieve(...)
 
@@ -575,7 +589,9 @@ def main() -> None:  # pylint: disable=unused-variable,too-many-branches,too-man
         required=RETRIEVE in sys.argv,
     )
     parser.add_argument(
-        "--role", help="the role name, required for retrieve", required=RETRIEVE in sys.argv,
+        "--role",
+        help="the role name, required for retrieve",
+        required=RETRIEVE in sys.argv,
     )
     parser.add_argument(
         "--saml-url",
