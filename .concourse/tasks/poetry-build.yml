@@ -1,0 +1,32 @@
+---
+platform: linux
+
+image_resource:
+  type: registry-image
+  source:
+    repository: docker-hub/cimg/python
+    tag: "3.12"
+    aws_region: us-east-1
+    aws_access_key_id: ((aws/sts/ecr.access_key))
+    aws_secret_access_key: ((aws/sts/ecr.secret_key))
+    aws_session_token: ((aws/sts/ecr.security_token))
+
+inputs:
+- name: source
+
+run:
+  path: bash
+  dir: source
+  args:
+  - -e
+  - -o
+  - pipefail
+  - -x
+  - -u
+  - -c
+  - >-
+      poetry install &&
+      poetry run black --check gatech_aws_credentials.py &&
+      poetry run flake8 gatech_aws_credentials.py &&
+      poetry run pylint gatech_aws_credentials.py &&
+      poetry run mypy --strict --scripts-are-modules gatech_aws_credentials.py &&
