@@ -8,20 +8,20 @@ repository = "https://github.com/RoboJackets/gatech-aws-credentials"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-requests = "^2.23.0"
-boto3 = "^1.12.11"
-beautifulsoup4 = "^4.8.2"
-keyring = "^21.2.1"
+requests = "2.31.0"
+boto3 = "1.34.14"
+beautifulsoup4 = "4.12.2"
+keyring = "21.8.0"
 
 [tool.poetry.dev-dependencies]
-black = "^23"
-boto3-stubs = "^1"
-botostubs = "^0.15"
-flake8 = "^7"
-flake8-bugbear = "^23"
-flake8-import-order = "^0.18"
-mypy = "^1"
-pylint = "^3"
+black = "23.12.1"
+boto3-stubs = "1.34.14"
+botostubs = "0.15.1.23.10"
+flake8 = "7.0.0"
+flake8-bugbear = "23.12.2"
+flake8-import-order = "0.18.2"
+mypy = "1.8.0"
+pylint = "3.0.3"
 
 [tool.poetry.scripts]
 gatech-aws-credentials = 'gatech_aws_credentials:main'
@@ -34,5 +34,5 @@ line-length = 100
 target-version = ['py38']
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry==1.7.1"]
 build-backend = "poetry.masonry.api"
