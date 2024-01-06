@@ -215,7 +215,7 @@ def parse_saml_response_to_roles(saml_response: str) -> List[str]:
             new_role = chunks[1] + "," + chunks[0]
             index = roles.index(role)
             roles.insert(index, new_role)
-            roles.remove(role)
+            roles.remove(role)  # pylint: disable=modified-iterating-list
 
     return roles
 
@@ -438,7 +438,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     else:
         mkdir(aws_directory)
 
-    with open(aws_config_file, "w") as file:
+    with open(aws_config_file, "w", encoding="utf-8") as file:
         aws_config.write(file)
 
     set_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX, tgt_url)
@@ -455,7 +455,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
     if cas_host != DEFAULT_CAS_HOST:
         gatech_config.set(GATECH, CAS_HOST, cas_host)
 
-    with open(gatech_config_file, "w") as file:
+    with open(gatech_config_file, "w", encoding="utf-8") as file:
         gatech_config.write(file)
 
     print(f"All done! You may want to review {aws_config_file} to see what this did.")
@@ -556,10 +556,10 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
 
     gatech_config.set(profile_name, "Expiration", datetime_to_iso_8601(credentials["Expiration"]))
 
-    with open(gatech_config_file, "w") as file:
+    with open(gatech_config_file, "w", encoding="utf-8") as file:
         gatech_config.write(file)
 
-    with open(aws_credentials_file, "w") as file:
+    with open(aws_credentials_file, "w", encoding="utf-8") as file:
         aws_credentials.write(file)
 
     print_credentials(credentials)
@@ -672,7 +672,7 @@ def main() -> (
                 datetime.strptime(gatech_config.get(profile_name, "Expiration"), ISO_8601)
                 - datetime.now(timezone.utc)
             ).total_seconds()
-            logger.debug("Found credentials expiring in {} seconds".format(expiring_in))
+            logger.debug("Found credentials expiring in {} seconds".format(expiring_in))  # pylint: disable=consider-using-f-string
             if expiring_in > 60:
                 credentials: Dict[str, Union[str, int, datetime]] = {}
 
