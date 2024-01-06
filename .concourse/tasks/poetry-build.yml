@@ -29,4 +29,4 @@ run:
       poetry run black --check gatech_aws_credentials.py &&
       poetry run flake8 gatech_aws_credentials.py &&
       poetry run pylint gatech_aws_credentials.py &&
-      poetry run mypy --strict --scripts-are-modules gatech_aws_credentials.py &&
+      poetry run mypy --strict --scripts-are-modules gatech_aws_credentials.py
