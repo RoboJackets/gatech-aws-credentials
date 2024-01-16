@@ -213,9 +213,9 @@ def parse_saml_response_to_roles(saml_response: str) -> List[str]:
         chunks = role.split(",")
         if "saml-provider" in chunks[0]:
             new_role = chunks[1] + "," + chunks[0]
-            index = roles.index(role)
-            roles.insert(index, new_role)
-            roles.remove(role)  # pylint: disable=modified-iterating-list
+            index = roles.index(role)  # noqa
+            roles.insert(index, new_role)  # noqa
+            roles.remove(role)  # noqa # pylint: disable=modified-iterating-list
 
     return roles
 
