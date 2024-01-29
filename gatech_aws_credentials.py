@@ -4,6 +4,7 @@ Retrieve credentials for Georgia Tech AWS accounts using CAS
 Inspired by
 https://aws.amazon.com/blogs/security/how-to-implement-federated-api-and-cli-access-using-saml-2-0-and-ad-fs/
 """
+
 import base64
 import logging
 import sys
