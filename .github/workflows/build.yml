@@ -1,0 +1,39 @@
+name: Build
+on:
+  - push
+jobs:
+  docs:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Setup Poetry
+        uses: abatilo/actions-poetry@v2
+
+      - name: Cache the virtualenv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: venv-${{ hashFiles('poetry.lock') }}
+
+      - name: Install Poetry dependencies
+        run: poetry install
+
+      - name: Run black
+        run: poetry run black --check gatech_aws_credentials.py
+
+      - name: Run flake8
+        run: poetry run flake8 gatech_aws_credentials.py
+
+      - name: Run pylint
+        run: poetry run pylint gatech_aws_credentials.py
+
+      - name: Run mypy
+        run: poetry run mypy --strict --scripts-are-modules gatech_aws_credentials.py

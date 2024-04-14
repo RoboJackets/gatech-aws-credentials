@@ -1,5 +1,5 @@
 # gatech-aws-credentials
-[![GitHub license](https://img.shields.io/github/license/RoboJackets/gatech-aws-credentials)](https://github.com/RoboJackets/gatech-aws-credentials/blob/main/LICENSE) [![CI](https://concourse.sandbox.aws.robojackets.net/api/v1/teams/information-technology/pipelines/gatech-aws-credentials/jobs/build-main/badge)](https://concourse.sandbox.aws.robojackets.net/teams/information-technology/pipelines/gatech-aws-credentials)
+[![GitHub license](https://img.shields.io/github/license/RoboJackets/gatech-aws-credentials)](https://github.com/RoboJackets/gatech-aws-credentials/blob/main/LICENSE) [![Build](https://github.com/RoboJackets/gatech-aws-credentials/actions/workflows/build.yml/badge.svg)](https://github.com/RoboJackets/gatech-aws-credentials/actions/workflows/build.yml)
 
 Retrieve credentials for Georgia Tech AWS accounts using CAS
 
