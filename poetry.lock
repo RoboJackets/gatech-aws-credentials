@@ -35,18 +35,18 @@ tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "p
 
 [[package]]
 name = "backports-tarfile"
-version = "1.1.1"
+version = "1.2.0"
 description = "Backport of CPython tarfile module"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "backports.tarfile-1.1.1-py3-none-any.whl", hash = "sha256:73e0179647803d3726d82e76089d01d8549ceca9bace469953fcb4d97cf2d417"},
-    {file = "backports_tarfile-1.1.1.tar.gz", hash = "sha256:9c2ef9696cb73374f7164e17fc761389393ca76777036f5aad42e8b93fcd8009"},
+    {file = "backports.tarfile-1.2.0-py3-none-any.whl", hash = "sha256:77e284d754527b01fb1e6fa8a1afe577858ebe4e9dad8919e34c862cb399bc34"},
+    {file = "backports_tarfile-1.2.0.tar.gz", hash = "sha256:d75e02c268746e1b8144c278978b6e98e85de6ad16f8e4b0844a154557eca991"},
 ]
 
 [package.extras]
 docs = ["furo", "jaraco.packaging (>=9.3)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
-testing = ["jaraco.test", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)"]
+testing = ["jaraco.test", "pytest (!=8.0.*)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)"]
 
 [[package]]
 name = "beautifulsoup4"
@@ -541,13 +541,13 @@ xray = ["mypy-boto3-xray (>=1.34.0,<1.35.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.34.113"
+version = "1.34.114"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.34.113-py3-none-any.whl", hash = "sha256:8ca87776450ef41dd25c327eb6e504294230a5756940d68bcfdedc4a7cdeca97"},
-    {file = "botocore-1.34.113.tar.gz", hash = "sha256:449912ba3c4ded64f21d09d428146dd9c05337b2a112e15511bf2c4888faae79"},
+    {file = "botocore-1.34.114-py3-none-any.whl", hash = "sha256:606d1e55984d45e41a812badee292755f4db0233eed9cca63ea3bb8f5755507f"},
+    {file = "botocore-1.34.114.tar.gz", hash = "sha256:5705f74fda009656a218ffaf4afd81228359160f2ab806ab8222d07e9da3a73b"},
 ]
 
 [package.dependencies]
