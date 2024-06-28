@@ -21,7 +21,7 @@ flake8 = "7.1.0"
 flake8-bugbear = "24.4.26"
 flake8-import-order = "0.18.2"
 mypy = "1.10.1"
-pylint = "3.2.4"
+pylint = "3.2.5"
 
 [tool.poetry.scripts]
 gatech-aws-credentials = 'gatech_aws_credentials:main'
