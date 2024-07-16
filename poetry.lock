@@ -1373,13 +1373,13 @@ files = [
 
 [[package]]
 name = "types-awscrt"
-version = "0.21.1"
+version = "0.21.2"
 description = "Type annotations and code completion for awscrt"
 optional = false
 python-versions = "<4.0,>=3.7"
 files = [
-    {file = "types_awscrt-0.21.1-py3-none-any.whl", hash = "sha256:8b9a3fc729a13d14ce77b686721a222837f6e0c1f49f907c657b3b94a5585e67"},
-    {file = "types_awscrt-0.21.1.tar.gz", hash = "sha256:9948d735459c4d3ecab502cbe619e00aea0c72e74979babd622fb6379b1e5247"},
+    {file = "types_awscrt-0.21.2-py3-none-any.whl", hash = "sha256:0839fe12f0f914d8f7d63ed777c728cb4eccc2d5d79a26e377d12b0604e7bf0e"},
+    {file = "types_awscrt-0.21.2.tar.gz", hash = "sha256:84a9f4f422ec525c314fdf54c23a1e73edfbcec968560943ca2d41cfae623b38"},
 ]
 
 [[package]]
