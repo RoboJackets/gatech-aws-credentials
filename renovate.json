@@ -21,7 +21,7 @@
         "lockFileMaintenance": {
             "enabled": true,
             "schedule": [
-                "before 4pm every weekday except before 9am every weekday"
+                "before 4pm on Monday except before 9am on Monday"
             ],
             "prPriority": -9
         }
@@ -29,12 +29,12 @@
     "rangeStrategy": "pin",
     "timezone": "America/New_York",
     "schedule": [
-        "before 4pm every weekday except before 9am every weekday"
+        "before 4pm on Monday except before 9am on Monday"
     ],
     "lockFileMaintenance": {
         "enabled": true,
         "schedule": [
-            "before 4pm every weekday except before 9am every weekday"
+            "before 4pm on Monday except before 9am on Monday"
         ],
         "prPriority": -9
     }
