@@ -22,8 +22,7 @@
             "enabled": true,
             "schedule": [
                 "before 4pm on Monday except before 9am on Monday"
-            ],
-            "prPriority": -9
+            ]
         }
     },
     "rangeStrategy": "pin",
@@ -35,7 +34,6 @@
         "enabled": true,
         "schedule": [
             "before 4pm on Monday except before 9am on Monday"
-        ],
-        "prPriority": -9
+        ]
     }
 }
