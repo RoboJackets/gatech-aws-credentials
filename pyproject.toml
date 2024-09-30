@@ -11,7 +11,7 @@ python = "^3.10"
 requests = "2.32.3"
 boto3 = "1.35.29"
 beautifulsoup4 = "4.12.3"
-keyring = "25.2.1"
+keyring = "25.4.1"
 
 [tool.poetry.dev-dependencies]
 black = "24.8.0"
