@@ -25,7 +25,7 @@ import boto3
 from botocore import UNSIGNED
 from botocore.config import Config
 
-from bs4 import BeautifulSoup  # type: ignore
+from bs4 import BeautifulSoup
 
 from keyring import get_password, set_password
 
@@ -125,7 +125,7 @@ def get_ticket_granting_ticket_url(
     if response.status_code in (423, 401):
         return response.status_code, None
 
-    tgt_url = BeautifulSoup(response.text, HTML_PARSER).form["action"]
+    tgt_url = BeautifulSoup(response.text, HTML_PARSER).form["action"]  # type: ignore
 
     assert isinstance(tgt_url, str)
 
@@ -182,7 +182,7 @@ def get_saml_response(session: Session, saml_url: str, tgt_url: str) -> Optional
         logger.debug(saml_request.text)
         sys.exit(1)
 
-    saml_response = BeautifulSoup(saml_request.text, HTML_PARSER).form.input["value"]
+    saml_response = BeautifulSoup(saml_request.text, HTML_PARSER).form.input["value"]  # type: ignore
 
     assert isinstance(saml_response, str)
 
