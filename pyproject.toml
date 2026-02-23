@@ -9,7 +9,7 @@ repository = "https://github.com/RoboJackets/gatech-aws-credentials"
 [tool.poetry.dependencies]
 python = "^3.10"
 requests = "2.32.5"
-boto3 = "1.42.49"
+boto3 = "1.42.54"
 beautifulsoup4 = "4.14.3"
 keyring = "25.4.1"
 
