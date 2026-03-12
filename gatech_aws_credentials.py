@@ -383,7 +383,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
 
     session = Session()
 
-    (code, tgt_url) = get_ticket_granting_ticket_url(  # pylint: disable=unused-variable
+    code, tgt_url = get_ticket_granting_ticket_url(  # pylint: disable=unused-variable
         cas_host, session, username, password
     )
 
@@ -397,7 +397,7 @@ def configure(  # pylint: disable=too-many-locals,too-many-branches,too-many-sta
 
         print("Checking credentials, please wait...", flush=True)
 
-        (code, tgt_url) = get_ticket_granting_ticket_url(cas_host, session, username, password)
+        code, tgt_url = get_ticket_granting_ticket_url(cas_host, session, username, password)
 
     if tgt_url is None:
         logger.error("Invalid credentials provided.")
@@ -505,14 +505,14 @@ def retrieve(  # pylint: disable=too-many-arguments,too-many-locals,too-many-sta
 
     tgt = get_password(KEYRING_SERVICE_NAME, username + KEYRING_TGT_SUFFIX)
     if tgt is None:
-        (code, tgt) = get_ticket_granting_ticket_url(cas_host, session, username, password)
+        code, tgt = get_ticket_granting_ticket_url(cas_host, session, username, password)
         if tgt is None:
             logger.error(ERROR_INVALID_CREDENTIALS_IN_KEYRING)
             sys.exit(1)
 
     saml_response = get_saml_response(session, saml_url, tgt)
     if saml_response is None:
-        (code, tgt) = get_ticket_granting_ticket_url(cas_host, session, username, password)
+        code, tgt = get_ticket_granting_ticket_url(cas_host, session, username, password)
         if tgt is None:
             logger.error(
                 ERROR_INVALID_CREDENTIALS_IN_KEYRING if code == 401 else ERROR_CAS_DOES_NOT_LIKE_YOU
