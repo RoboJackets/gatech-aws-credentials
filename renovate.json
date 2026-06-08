@@ -31,6 +31,12 @@
             },
             "matchDepNames": ["python"],
             "rangeStrategy": "replace"
+        },
+        {
+            "matchManagers": [
+                "github-actions"
+            ],
+            "rangeStrategy": "replace"
         }
     ]
 }
