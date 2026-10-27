@@ -1,5 +1,5 @@
 [BASIC]
-disable=W1202
+disable=W1202,R0917
 
 [FORMAT]
 expected-line-ending-format=LF
